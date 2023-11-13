@@ -1,5 +1,5 @@
 .app {
-    width: 500px;
+    max-width: 500px;
     margin: auto;
     background-color: #fafafa;
     margin-bottom: 20px;
@@ -38,6 +38,7 @@
     height: 50px;
     animation: spinner 2s linear infinite;
 }
+
 /* =========================== LIST ===========================*/
 .list {
     display: flex;
@@ -141,4 +142,15 @@
 
 .drop__item:active {
     background-color: #d5e0f5;
+}
+
+
+@media (max-width: 768px) {
+    .app {
+        padding: 0 20px;
+    }
+
+    .list__inner {
+        width: 80%;
+    }
 }
