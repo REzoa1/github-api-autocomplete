@@ -4,7 +4,7 @@ import {
   getData,
   catchErr,
   fillFragment,
-} from "helpers.js";
+} from "./helpers.js";
 
 const dropdown = document.querySelector(".drop");
 const container = document.querySelector(".list");
