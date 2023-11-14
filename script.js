@@ -1,9 +1,9 @@
 import {
-  createDiv,
   handleError,
   getData,
   catchErr,
   fillFragment,
+  debounce,
 } from "./helpers.js";
 
 const dropdown = document.querySelector(".drop");
@@ -13,49 +13,38 @@ const input = document.querySelector(".search-form");
 const loader = document.createElement("div");
 loader.classList.add("loader");
 
-let timer;
 let data = [];
 let currVal = "";
 
 const dropdownListener = (e) => {
-  if (e.target.className === "drop__item" && data) {
+  if (e.target.className === "drop__item" && data.length) {
     dropdown.textContent = "";
     input.value = "";
     currVal = "";
 
     const { name, owner, stargazers_count, id } = data[e.target.id];
-    const el = document.getElementById(id);
+    const liExists = document.getElementById(id);
 
-    if (el) {
-      container.insertAdjacentElement("afterbegin", el);
+    if (liExists) {
+      container.insertAdjacentElement("afterbegin", liExists);
       return;
     }
 
-    const liEl = document.createElement("li");
-    liEl.classList.add("list__item");
-    liEl.id = id;
+    const html = `<div class="list__item" id="${id}">
+                      <div class="list__inner">
+                        <div class="list__el">Name: ${name}</div>
+                        <div class="list__el">Owner: ${owner.login}</div>
+                        <div class="list__el">Stars: ${stargazers_count}</div>
+                      </div>
+                      <button class="list__del-btn"></button>
+                    </div>`;
 
-    const inner = createDiv(null, "list__inner");
-    const nameWrap = createDiv(`Name: ${name}`, "list__el");
-    const ownerWrap = createDiv(`Owner: ${owner.login}`, "list__el");
-    const starsWrap = createDiv(`Stars: ${stargazers_count}`, "list__el");
-
-    const btn = document.createElement("button");
-    btn.classList.add("list__btn");
-    btn.textContent = "✕";
-
-    inner.append(nameWrap);
-    inner.append(ownerWrap);
-    inner.append(starsWrap);
-    liEl.append(inner);
-    liEl.append(btn);
-
-    container.insertAdjacentElement("afterbegin", liEl);
+    container.insertAdjacentHTML("afterbegin", html);
   }
 };
 
 const contaierListener = (e) => {
-  if (e.target.className === "list__btn") {
+  if (e.target.className === "list__del-btn") {
     e.target.closest(".list__item").remove();
   }
 };
@@ -68,10 +57,6 @@ const setData = ({ items, total_count }, value) => {
 
   data.push(...items);
   const fragment = fillFragment(items);
-
-  if (!currVal.trim() || value !== currVal) {
-    return;
-  }
 
   dropdown.append(fragment);
 };
@@ -95,7 +80,6 @@ const searchListener = (e) => {
   currVal = e.target.value;
   dropdown.textContent = "";
   loader.remove();
-  clearTimeout(timer);
 
   if (!currVal.trim()) {
     return;
@@ -105,9 +89,11 @@ const searchListener = (e) => {
 
   const url = `https://api.github.com/search/repositories?q=${currVal}&per_page=5`;
 
-  timer = setTimeout(() => fetchData(url, currVal), 900);
+  fetchData(url, currVal);
 };
+
+const onChange = debounce(searchListener, 700);
 
 dropdown.addEventListener("click", dropdownListener);
 container.addEventListener("click", contaierListener);
-input.addEventListener("keyup", searchListener);
+input.addEventListener("keyup", onChange);

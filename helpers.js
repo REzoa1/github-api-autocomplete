@@ -1,18 +1,5 @@
 const dropdown = document.querySelector(".drop");
 
-const createDiv = (text, ...classes) => {
-  const div = document.createElement("div");
-  if (text) {
-    div.textContent = text;
-  }
-
-  if (classes) {
-    div.classList.add(...classes);
-  }
-
-  return div;
-};
-
 const handleError = (text) => {
   const errContainer = document.createElement("div");
   errContainer.classList.add("err-wrap");
@@ -46,4 +33,15 @@ const fillFragment = (items) => {
   return fragment;
 };
 
-export { createDiv, handleError, getData, catchErr, fillFragment };
+const debounce = (fn, debounceTime) => {
+  let timer;
+  return function (...args) {
+    clearTimeout(timer);
+
+    timer = setTimeout(() => {
+      fn.apply(this, args);
+    }, debounceTime);
+  };
+};
+
+export { handleError, getData, catchErr, fillFragment, debounce };
